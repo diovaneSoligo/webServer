@@ -5,11 +5,10 @@
  */
 package webserver;
 
-import static com.sun.org.apache.xalan.internal.lib.ExsltDatetime.date;
+import com.sun.org.apache.xalan.internal.xsltc.DOM;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,7 +35,7 @@ public class WebServer {
     public static void main(String[] args) throws IOException {
         
 //pega a hora e data no acesso
-        Time hora;
+        
         Date data=new Date();
         SimpleDateFormat x= new SimpleDateFormat("dd/MM/yyyy || HH:mm:ss");
         
@@ -177,23 +176,10 @@ public class WebServer {
             
             //tratar requisição
             
-            s.getOutputStream().write("<html><head><title>Previsão Tempo</title><link rel=\"shortcut icon\" href='".getBytes("ISO-8859-1"));
-            s.getOutputStream().write(T.getImagem().getBytes("ISO-8859-1"));
-            s.getOutputStream().write("'/></head><body style='background-color:#c3c3c3'>".getBytes("ISO-8859-1"));
+            //mostra pagina web no navegador
+            pagina pag = new pagina(T ,s);
             
-            s.getOutputStream().write("<img src='".getBytes("ISO-8859-1"));
-            s.getOutputStream().write(T.getImagem().getBytes("ISO-8859-1"));
-            s.getOutputStream().write("'><br> Data e hora da última atualização:  ".getBytes("ISO-8859-1"));
-            s.getOutputStream().write(T.getData_hora().getBytes("ISO-8859-1"));
-            s.getOutputStream().write("<br> Estado: ".getBytes("ISO-8859-1"));
-            s.getOutputStream().write(T.getDescricao().getBytes("ISO-8859-1"));
-            s.getOutputStream().write("<br>Temperatura:  ".getBytes("ISO-8859-1"));
-            s.getOutputStream().write(T.getTemperatura().getBytes("ISO-8859-1"));
-            s.getOutputStream().write(" °C <br> Visibilidade: ".getBytes("ISO-8859-1"));
-            s.getOutputStream().write(T.getVisibilidade().getBytes("ISO-8859-1"));
-            s.getOutputStream().write("<br>".getBytes("ISO-8859-1"));
             
-            s.getOutputStream().write("</body></html>".getBytes("ISO-8859-1"));
             s.close();
         }//fecha WHILE
         
