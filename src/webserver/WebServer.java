@@ -40,6 +40,7 @@ public class WebServer {
         Date data=new Date();
         SimpleDateFormat x= new SimpleDateFormat("dd/MM/yyyy || HH:mm:ss");
         
+        Tempo T = new Tempo();
         /***************************************************************************/
         //Importação dos dados XML --INICIO--
         try {
@@ -53,13 +54,13 @@ public class WebServer {
             NodeList ListaTempo = doc.getElementsByTagName("agora");
             
             //retorna quantos elementos tem na lista tempo
-            int tamanholista = ListaTempo.getLength();
+        //    int tamanholista = ListaTempo.getLength();
             
             //percorre
-            for (int i = 0; i < tamanholista; i++) {//ver se precisa realmente deste for
+        //    for (int i = 0; i < tamanholista; i++) {//ver se precisa realmente deste for
                 
                 //pra cada elemento encontrado é feito um nó
-                Node agora = ListaTempo.item(i);
+                Node agora = ListaTempo.item(0);
                 
                 //verifica se o nó agora é do tipo elemento, se for do tipo element é pq tem coisa dentro dele
                 if(agora.getNodeType() == Node.ELEMENT_NODE){
@@ -85,66 +86,60 @@ public class WebServer {
                                                 switch(elementoFilho.getTagName()){
                                                 
                                                     case "data_hora":
-                                                        System.out.println("Última atualização: "+elementoFilho.getTextContent());
+                                                        T.setData_hora(elementoFilho.getTextContent());
                                                         break;
                                                         
                                                     case "descricao":
-                                                        System.out.println("Descrição: "+elementoFilho.getTextContent());
+                                                        T.setDescricao(elementoFilho.getTextContent());
                                                         break;
                                                         
                                                     case "temperatura":
-                                                        System.out.println("Temperatura: "+elementoFilho.getTextContent());
+                                                        T.setTemperatura(elementoFilho.getTextContent());
                                                         break;
                                                         
                                                     case "umidade":
-                                                        System.out.println("Umidade: "+elementoFilho.getTextContent());
+                                                        T.setUmidade(elementoFilho.getTextContent());
                                                         break;
                                                         
                                                     case "visibilidade":
-                                                        System.out.println("Visibilidade: "+elementoFilho.getTextContent());
+                                                        T.setVisibilidade(elementoFilho.getTextContent());
                                                         break;
                                                         
                                                     case "vento_velocidade":
-                                                        System.out.println("vento_velocidade: "+elementoFilho.getTextContent());
+                                                        T.setVento_velocidade(elementoFilho.getTextContent());
                                                         break;
                                                         
                                                     case "vento_direcao":
-                                                        System.out.println("vento_direcao: "+elementoFilho.getTextContent());
+                                                        T.setVento_direcao(elementoFilho.getTextContent());
                                                         break;
                                                       
                                                     case "pressao":
-                                                        System.out.println("pressao: "+elementoFilho.getTextContent());
+                                                        T.setPressao(elementoFilho.getTextContent());
                                                         break;
                                                         
                                                     case "pressao_status":
-                                                        System.out.println("pressao_status: "+elementoFilho.getTextContent());
+                                                        T.setPressao_status(elementoFilho.getTextContent());
                                                         break;
                                                         
                                                     case "nascer_do_sol":
-                                                        System.out.println("nascer_do_sol: "+elementoFilho.getTextContent());
+                                                        T.setNascer_do_sol(elementoFilho.getTextContent());
                                                         break;
                                                         
                                                     case "por_do_sol":
-                                                        System.out.println("por_do_sol: "+elementoFilho.getTextContent());
+                                                        T.setPor_do_sol(elementoFilho.getTextContent());
                                                         break;
                                                         
                                                     case "imagem":
-                                                        System.out.println("imagem: "+elementoFilho.getTextContent());
+                                                        T.setImagem(elementoFilho.getTextContent());
                                                         break;
                                                 
-                                                
-                                                
-                                                }
+                                                    }
                                                    
-                                    }
+                                                }
                                     
-                                }
-                        
-                        
-                        
-                }
-                
-            }
+                                            }
+            //    }
+                                    }
             
             
         } catch (ParserConfigurationException ex) {
@@ -161,31 +156,46 @@ public class WebServer {
         
         
         
-    //    ServerSocket ss = new ServerSocket(80);//porta padrão do html ...
+        ServerSocket ss = new ServerSocket(80);//porta padrão do html ...
         //WebServer       
-    //    while(true){
-    //        Socket s = ss.accept();
-    //        String remoteIp = s.getInetAddress().getHostAddress();
+        while(true){
+            Socket s = ss.accept();
+            String remoteIp = s.getInetAddress().getHostAddress();
             
             //todo tramamento da , reconhecer requisição
             
             /*tratar tudo em thrad*/
             
-    //        byte[]  b =new byte[1024]; //cria 1204 possições    ||| byte array
+            byte[]  b =new byte[1024]; //cria 1204 possições    ||| byte array
             
-    //        int num = s.getInputStream().read(b);//se retornar -1 ja tava vazio se mais leu tudo que precisava
+            int num = s.getInputStream().read(b);//se retornar -1 ja tava vazio se mais leu tudo que precisava
             
-    //        if (num>0){
+            if (num>0){
                         //System.out.println(new String(b, 0, num, "ISO-8859-1"));
-    //                    System.out.println("-> "+x.format(data)+" || IP CONEXÃO EXTERNA: "+remoteIp+"\n");
-    //                  }
-    //        
+                        System.out.println("-> "+x.format(data)+" || IP CONEXÃO EXTERNA: "+remoteIp+"\n");
+                      }
+            
             //tratar requisição
             
-    //        s.getOutputStream().write("<html><head></head><body>olá <img src='imagem.png'></body></html>".getBytes("ISO-8859-1"));
+            s.getOutputStream().write("<html><head><title>Previsão Tempo</title><link rel=\"shortcut icon\" href='".getBytes("ISO-8859-1"));
+            s.getOutputStream().write(T.getImagem().getBytes("ISO-8859-1"));
+            s.getOutputStream().write("'/></head><body style='background-color:#c3c3c3'>".getBytes("ISO-8859-1"));
             
-    //        s.close();
-    //    }//fecha WHILE
+            s.getOutputStream().write("<img src='".getBytes("ISO-8859-1"));
+            s.getOutputStream().write(T.getImagem().getBytes("ISO-8859-1"));
+            s.getOutputStream().write("'><br> Data e hora da última atualização:  ".getBytes("ISO-8859-1"));
+            s.getOutputStream().write(T.getData_hora().getBytes("ISO-8859-1"));
+            s.getOutputStream().write("<br> Estado: ".getBytes("ISO-8859-1"));
+            s.getOutputStream().write(T.getDescricao().getBytes("ISO-8859-1"));
+            s.getOutputStream().write("<br>Temperatura:  ".getBytes("ISO-8859-1"));
+            s.getOutputStream().write(T.getTemperatura().getBytes("ISO-8859-1"));
+            s.getOutputStream().write(" °C <br> Visibilidade: ".getBytes("ISO-8859-1"));
+            s.getOutputStream().write(T.getVisibilidade().getBytes("ISO-8859-1"));
+            s.getOutputStream().write("<br>".getBytes("ISO-8859-1"));
+            
+            s.getOutputStream().write("</body></html>".getBytes("ISO-8859-1"));
+            s.close();
+        }//fecha WHILE
         
     }
     

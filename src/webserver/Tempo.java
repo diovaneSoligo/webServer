@@ -13,6 +13,7 @@ public class Tempo {
     
     private String cidade;
     private String data_hora;
+    private String descricao;
     private String temperatura;
     private String umidade;
     private String visibilidade;
@@ -118,6 +119,14 @@ public class Tempo {
 
     public void setImagem(String imagem) {
         this.imagem = imagem;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
     
     
