@@ -24,8 +24,7 @@ public class WebServer {
         
 //pega a hora e data no acesso
         
-        Date data=new Date();
-        SimpleDateFormat x= new SimpleDateFormat("dd/MM/yyyy || HH:mm:ss");
+        
         
         
         
@@ -45,6 +44,9 @@ public class WebServer {
             
             if (num>0){
                         //System.out.println(new String(b, 0, num, "ISO-8859-1"));
+                        
+                        Date data=new Date();
+                        SimpleDateFormat x= new SimpleDateFormat("dd/MM/yyyy || HH:mm:ss");
                         System.out.println("-> "+x.format(data)+" || IP CONEXÃO EXTERNA: "+remoteIp+"\n");
                       }
             

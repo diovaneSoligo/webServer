@@ -29,7 +29,7 @@ public class pagina {
             
             s.getOutputStream().write("</h4><img style='width: 135px;' src='".getBytes("ISO-8859-1"));
             s.getOutputStream().write(T.getImagem().getBytes("ISO-8859-1"));
-            s.getOutputStream().write("'><h6>Última atualização do XML: ".getBytes("ISO-8859-1"));
+            s.getOutputStream().write("'><h6>Atualizado em: ".getBytes("ISO-8859-1"));
             s.getOutputStream().write(T.getData_hora().getBytes("ISO-8859-1"));
             s.getOutputStream().write("</h6>Estado: ".getBytes("ISO-8859-1"));
             s.getOutputStream().write(T.getDescricao().getBytes("ISO-8859-1"));
