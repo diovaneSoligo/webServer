@@ -1,75 +1,135 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- 
-Trabalho de Sistemas Operacionais - Graduação em Sistemas Para Internet 4º semestre
-        1º semestre de 2016 - UFSM
-
-Característica da aplicação:
-
-Desenvolver  um  Web  Server  que implemente  o  método  GET  (http)e  que  disponibilize  uma única 
-página de boas vindas com as seguintes características:
-
--A  página  de  boas  vindas  deverá  conter  informações  meteorológicas  locais  como: 
-temperatura,    umidade,    precipitação,    e    outras    características    que    se    julgar 
-conveniente;
-
--Deverá  registrar  para  cada  acesso,o endereço IP de  origem  da  requisiçãoem  um arquivo de log;
-
--Deverá  ser  implementado  com  múltiplas  threads,  onde  cada  requisição  ao  servidor será 
-tratada em uma thread exclusiva;
-
--A cada 30 segundos as informações meteorológicas serão atualizadas, de forma que a página ficará
-bloqueada enquanto isto ocorre;
-
--As informações meteorológicas podem ser obtidas de forma randômicaou a partir de um 
-webservice   (INMET,   INPE,   etc..).   Para obter   a   nota   integral   neste   item,   a 
-implementação deverá ser com webservice.
-
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package webserver;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/**
- *
- * @author // Diovane Soligo // Alisson Trindade
- */
 public class WebServer {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) throws IOException {
-        ServerSocket ss = new ServerSocket(80);
- //WebServer       
-        while(true){
-            Socket s = ss.accept();
+    
+/*******************************************************************************/    
+    static class Buffer {
+        Queue<Tempo> queue = new LinkedList<Tempo>();
+    }
+    
+/*******************************************************************************/
+    static class XML implements Runnable {
+        Buffer buffer;
+        
+        XML(Buffer buffer) {
+            this.buffer = buffer;
+        }
+        
+        @Override
+        public void run() {
+           do{
+               System.out.println("\n\nVai atualizar o XML ...\n");
+               BuscaDadosXML XML = new BuscaDadosXML();
+               Tempo T = XML.T;
+               
+               synchronized (buffer) { 
+                   
+                            buffer.queue.add(T); // Adiciona os dados sobre a previsão do tempo
+                            buffer.notify();
+                            System.out.println("Atualizou as informações do tempo !!!\n");
+                        
+                            try {
+                                System.out.println("Vai dormir por 10 segundos ... \n");
+                                Thread.sleep(10000);//dorme por 30 segundos, depois realiza a tualização do XML
+                                }
+                            catch (InterruptedException e) {
+                                }
+                            System.out.println("acordou...\n");
+                        buffer.queue.remove();
+                        buffer.notify();
+                    }
+           }while(true);
+        }
+    }
+    
+/*******************************************************************************/    
+    static class Pagina implements Runnable{
+        Buffer buffer;
+        Socket s;
+        
+        Pagina(Buffer buffer, Socket s) {
+            this.buffer = buffer;
+            this.s = s;
+        }
+        
+        @Override
+        public void run() {
+            System.out.println("está em class Pagina...\n");
             
-            
-            String remoteIp = s.getInetAddress().getHostAddress();
-            //todo tramamento da , reconhecer requisição
-            
-            /*tratar tudo em thrad*/
-            
-            byte[]  b =new byte[1024]; //cria 1204 possições    ||| byte array
-            
-            int num = s.getInputStream().read(b);//se retornar -1 ja tava vazio se mais leu tudo que precisava
-            
-            if (num>0){
-            System.out.println(new String(b, 0, num, "ISO-8859-1"));
-            System.out.println("IP CONEXÃO EXTERNA: " +remoteIp +"\n************************************\n\n");
-            }
-            
-            //tratar requisição
-            
-            s.getOutputStream().write("<html><head></head><body>OLÁ MUNDO!!!</body></html>".getBytes("ISO-8859-1"));
-            
+            try {
+                
+                String remoteIp = s.getInetAddress().getHostAddress();
+                byte[]  b =new byte[1024]; //cria 1204 possições    ||| byte array
+                int num = s.getInputStream().read(b);//se retornar -1 ja tava vazio se mais leu tudo que precisava
+                if (num>0){
+                        
+                        Date data=new Date();
+                        SimpleDateFormat x= new SimpleDateFormat("dd/MM/yyyy || HH:mm:ss");
+                        String log = "-> "+x.format(data)+" || IP CONEXÃO EXTERNA: "+remoteIp;
+                        
+                        System.out.println(log+"\n");
+                        
+                        //gravar no log, chamar a classe GravaLog passando a string log
+                      }
+                
+                    Tempo T = buffer.queue.peek();
+                    
+                    if(T == null){//se o buffer tiver vazio, entao espera pq ta atualizando
+                        try {
+                            System.out.println("está esperando informações serem atualizadas...\n");
+                                buffer.wait(); // Espera de as informações serem colocadas no Buffer
+                                
+                            }
+                        catch (InterruptedException e) {
+                            }
+                        System.out.println("SAIU DE  esperando informações serem atualizadas...\n");
+                    }else{
+                        pagina pag = new pagina(T ,s);
+                    }
+                    
             s.close();
             
+            } catch (IOException ex) {
+                Logger.getLogger(WebServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
             
         }
+    }
+    
+    
+/*******************************************************************************/
+    public static void main(String[] args) throws IOException {
+        
+        Buffer buffer = new Buffer();
+        
+        //abrir o aruivo TXT aqui, caso nao exista, deve-se criar o mesmo
+        
+        XML xml = new XML(buffer);
+        
+        new Thread(xml).start(); // Thread XML criada
+        ServerSocket ss = new ServerSocket(80); //porta padrão do html ...
+        
+        while(true){ //para cada requisição será criada uma nova thread
+            Socket s = ss.accept();
+            Pagina pag = new Pagina(buffer, s/*txtLog*/ );//passar o arquivo txt aberto para a class Pagina
+            new Thread(pag).start(); // Thread pagina criada 
+        }
+
     }
     
 }
