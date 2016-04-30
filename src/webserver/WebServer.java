@@ -5,6 +5,7 @@
  */
 package webserver;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -49,27 +50,28 @@ public class WebServer {
                                 }
                             catch (InterruptedException e) {
                                 }
-                            System.out.println("acordou...\n");
                         buffer.queue.remove();
                         buffer.notify();
                     }
            }while(true);
         }
     }
-    
+
 /*******************************************************************************/    
     static class Pagina implements Runnable{
         Buffer buffer;
         Socket s;
         
+        
         Pagina(Buffer buffer, Socket s) {
             this.buffer = buffer;
             this.s = s;
+            
         }
         
         @Override
         public void run() {
-            System.out.println("está em class Pagina...\n");
+            System.out.println(" ...NOVA CONECXÃO...\n");
             
             try {
                 
@@ -85,6 +87,9 @@ public class WebServer {
                         System.out.println(log+"\n");
                         
                         //gravar no log, chamar a classe GravaLog passando a string log
+                        System.out.println("Vai gravar no TXT...");
+                        GravaLog grava = new GravaLog(log);
+                        System.out.println("Retornou de gravar no TXT...");
                       }
                 
                     Tempo T = buffer.queue.peek();
@@ -93,15 +98,16 @@ public class WebServer {
                         try {
                             System.out.println("está esperando informações serem atualizadas...\n");
                                 buffer.wait(); // Espera de as informações serem colocadas no Buffer
-                                
+
                             }
                         catch (InterruptedException e) {
                             }
                         System.out.println("SAIU DE  esperando informações serem atualizadas...\n");
                     }else{
+                        System.out.println("Mostra a página web...");
                         pagina pag = new pagina(T ,s);
                     }
-                    
+                    System.out.println("s.close()...");
             s.close();
             
             } catch (IOException ex) {
@@ -117,8 +123,6 @@ public class WebServer {
         
         Buffer buffer = new Buffer();
         
-        //abrir o aruivo TXT aqui, caso nao exista, deve-se criar o mesmo
-        
         XML xml = new XML(buffer);
         
         new Thread(xml).start(); // Thread XML criada
@@ -126,7 +130,7 @@ public class WebServer {
         
         while(true){ //para cada requisição será criada uma nova thread
             Socket s = ss.accept();
-            Pagina pag = new Pagina(buffer, s/*txtLog*/ );//passar o arquivo txt aberto para a class Pagina
+            Pagina pag = new Pagina(buffer, s);//passa o buffer o socket e  o arquivo txt aberto para gravar o log
             new Thread(pag).start(); // Thread pagina criada 
         }
 
