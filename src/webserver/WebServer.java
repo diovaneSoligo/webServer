@@ -34,7 +34,7 @@ public class WebServer {
         @Override
         public void run() {
            do{
-               System.out.println("\n\nVai atualizar o XML ...\n");
+               System.out.println("\n\n Buscando dados XML, e atualizando variáveis...\n");
                BuscaDadosXML XML = new BuscaDadosXML();
                Tempo T = XML.T;
                
@@ -45,8 +45,8 @@ public class WebServer {
                             System.out.println("Atualizou as informações do tempo !!!\n");
                         
                             try {
-                                System.out.println("Vai dormir por 10 segundos ... \n");
-                                Thread.sleep(10000);//dorme por 30 segundos, depois realiza a tualização do XML
+                                System.out.println("Vai dormir por 30 segundos ... \n");
+                                Thread.sleep(30000);//dorme por 30 segundos, depois realiza a tualização do XML
                                 }
                             catch (InterruptedException e) {
                                 }
@@ -62,11 +62,9 @@ public class WebServer {
         Buffer buffer;
         Socket s;
         
-        
         Pagina(Buffer buffer, Socket s) {
             this.buffer = buffer;
             this.s = s;
-            
         }
         
         @Override
