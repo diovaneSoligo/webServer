@@ -41,7 +41,7 @@ public class WebServer {
                synchronized (buffer) { 
                    
                             buffer.queue.add(T); // Adiciona os dados sobre a previsão do tempo
-                            buffer.notify();
+                            //buffer.notify();
                             System.out.println("Atualizou as informações do tempo !!!\n");
                         
                             try {
@@ -69,43 +69,42 @@ public class WebServer {
         
         @Override
         public void run() {
-            System.out.println(" ...NOVA CONECXÃO...\n");
+            System.out.println("");
             
             try {
                 
                 String remoteIp = s.getInetAddress().getHostAddress();
                 byte[]  b =new byte[1024]; //cria 1204 possições    ||| byte array
                 int num = s.getInputStream().read(b);//se retornar -1 ja tava vazio se mais leu tudo que precisava
-                if (num>0){
-                        
-                        Date data=new Date();
-                        SimpleDateFormat x= new SimpleDateFormat("dd/MM/yyyy || HH:mm:ss");
-                        String log = "-> "+x.format(data)+" || IP CONEXÃO EXTERNA: "+remoteIp;
-                        
-                        System.out.println(log+"\n");
-                        
-                        //gravar no log, chamar a classe GravaLog passando a string log
-                        System.out.println("Vai gravar no TXT...");
-                        GravaLog grava = new GravaLog(log);
-                        System.out.println("Retornou de gravar no TXT...");
-                      }
                 
                     Tempo T = buffer.queue.peek();
                     
                     if(T == null){//se o buffer tiver vazio, entao espera pq ta atualizando
-                        try {
-                            System.out.println("está esperando informações serem atualizadas...\n");
-                                buffer.wait(); // Espera de as informações serem colocadas no Buffer
-
-                            }
-                        catch (InterruptedException e) {
-                            }
-                        System.out.println("SAIU DE  esperando informações serem atualizadas...\n");
+                        s.getOutputStream().write("<html><head><title>Previsão Tempo</title><meta http-equiv=\"refresh\" content=\"3;URL=\"></head><body><center><img src='http://3.bp.blogspot.com/-uu-lH7QcLCI/UWDHinegPJI/AAAAAAAAC4U/jICMNeTL3hw/s1600/Gifs+Carregando+-+V%C3%A1rias1.gif' width='20' height='20'> AGUARDE ... atualizando xml</center></body></html>".getBytes("ISO-8859-1"));
+                        System.out.println("Atualizando... Mostra pagina de carregando em quanto atualiza as variaveis");
                     }else{
+                        
                         System.out.println("Mostra a página web...");
+                        
+                        if (num>0){
+                        
+                                Date data=new Date();
+                                SimpleDateFormat x= new SimpleDateFormat("dd/MM/yyyy || HH:mm:ss");
+                                String log = "-> "+x.format(data)+" || IP CONEXÃO EXTERNA: "+remoteIp;
+
+                                System.out.println(log+"\n");
+
+                                //gravar no log, chamar a classe GravaLog passando a string log
+                                System.out.println("Vai gravar no TXT...");
+                                GravaLog grava = new GravaLog(log);
+                                System.out.println("Retornou de gravar no TXT...");
+                                
+                            }
+                        
+                        
                         pagina pag = new pagina(T ,s);
+                        
                     }
-                    System.out.println("s.close()...");
             s.close();
             
             } catch (IOException ex) {
